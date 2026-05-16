@@ -49,6 +49,7 @@ export interface ForecastPoint {
 export interface ForecastResponse {
   historical: HistoricalPoint[];
   forecast: ForecastPoint[];
+  history?: HistoricalPoint[];
 }
 
 export interface AnomalyPoint {
@@ -57,12 +58,28 @@ export interface AnomalyPoint {
   score: number;
 }
 
+export interface AnomalyDataPoint {
+  timestamp: string;
+  value: number;
+  score: number;
+  is_anomaly: boolean;
+}
+
+export interface AnomalyStats {
+  min: number;
+  max: number;
+  mean: number;
+  std: number;
+}
+
 export interface AnomalyResponse {
   anomalies: AnomalyPoint[];
   method: string;
   threshold: number;
   total_points: number;
   anomaly_count: number;
+  data?: AnomalyDataPoint[];
+  stats?: AnomalyStats;
 }
 
 export interface ApiProvider {
@@ -71,3 +88,12 @@ export interface ApiProvider {
   apiKeyMasked: string;
   status: 'Active' | 'Expired' | 'Revoked';
 }
+
+export interface ModelHistoryItem {
+  model_id: string;
+  model_type: string;
+  dataset_id: string;
+  metrics: Metrics;
+  created_at: string;
+}
+

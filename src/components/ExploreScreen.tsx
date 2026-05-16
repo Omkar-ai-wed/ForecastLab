@@ -4,7 +4,7 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, A
 import { cn } from '../lib/utils';
 import { motion } from 'motion/react';
 import { api } from '../lib/api';
-import { Dataset, AnomalyResponse } from '../types';
+import { Dataset, AnomalyResponse, AnomalyDataPoint } from '../types';
 
 export const ExploreScreen: React.FC = () => {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
@@ -146,7 +146,7 @@ export const ExploreScreen: React.FC = () => {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={anomalyData.data}>
+              <ComposedChart data={anomalyData.data || []}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                 <XAxis 
                   dataKey="timestamp" 
@@ -177,7 +177,7 @@ export const ExploreScreen: React.FC = () => {
                 
                 {showAnomalies && (
                   <Scatter 
-                    data={anomalyData.data.filter(d => d.is_anomaly)} 
+                    data={(anomalyData.data || []).filter((d: AnomalyDataPoint) => d.is_anomaly)} 
                     fill="#f43f5e" 
                     name="Anomalies" 
                   />
@@ -192,10 +192,10 @@ export const ExploreScreen: React.FC = () => {
         <h3 className="text-[10px] font-black text-white uppercase tracking-widest mb-6">Statistical Core</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { label: 'Minimum', value: anomalyData?.stats.min?.toFixed(2) },
-            { label: 'Maximum', value: anomalyData?.stats.max?.toFixed(2) },
-            { label: 'Global Mean', value: anomalyData?.stats.mean?.toFixed(2) },
-            { label: 'Std Deviation', value: anomalyData?.stats.std?.toFixed(2) },
+            { label: 'Minimum', value: anomalyData?.stats?.min?.toFixed(2) },
+            { label: 'Maximum', value: anomalyData?.stats?.max?.toFixed(2) },
+            { label: 'Global Mean', value: anomalyData?.stats?.mean?.toFixed(2) },
+            { label: 'Std Deviation', value: anomalyData?.stats?.std?.toFixed(2) },
           ].map((stat) => (
             <div key={stat.label} className="bento-card bg-surface-container/10">
               <p className="card-label text-[9px]!">{stat.label}</p>
