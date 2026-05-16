@@ -114,7 +114,7 @@ export const TrainingScreen: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-4 bento-card !p-8 h-full gap-8">
+        <div className="lg:col-span-4 bento-card p-8! h-full gap-8">
           <div className="flex items-center gap-3 border-b border-outline pb-5">
             <h3 className="text-sm font-black text-white uppercase tracking-widest">Foundry Config</h3>
           </div>
@@ -242,7 +242,7 @@ export const TrainingScreen: React.FC = () => {
                 type="button" 
                 onClick={handleStartTraining} 
                 disabled={isTraining || datasets.length === 0} 
-                className={cn("flex-[2] min-w-[180px] text-black font-black py-3 rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95", isTraining ? "bg-secondary text-white" : "bg-white hover:bg-opacity-90 shadow-white/10")}
+                className={cn("flex-2 min-w-[180px] text-black font-black py-3 rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95", isTraining ? "bg-secondary text-white" : "bg-white hover:bg-opacity-90 shadow-white/10")}
               >
                 {isTraining ? <><Loader2 size={18} className="animate-spin" /> Processing...</> : <><Play size={18} fill="currentColor" /> Ignite Foundry</>}
               </button>
@@ -251,7 +251,7 @@ export const TrainingScreen: React.FC = () => {
         </div>
 
         <div className="lg:col-span-8 space-y-8 h-full flex flex-col">
-          <div className="bento-card relative overflow-hidden group !p-8 bg-surface-container/10">
+          <div className="bento-card relative overflow-hidden group p-8! bg-surface-container/10">
             <div className="absolute right-0 top-0 w-48 h-48 bg-secondary/5 rounded-full -translate-y-16 translate-x-16 blur-3xl opacity-50" />
             <div className="z-10 flex items-center justify-between">
               <div>
@@ -285,7 +285,7 @@ export const TrainingScreen: React.FC = () => {
             </div>
           </div>
 
-          <div className="bento-card !p-0 shadow-sm flex-1 flex flex-col overflow-hidden">
+          <div className="bento-card p-0! shadow-sm flex-1 flex flex-col overflow-hidden">
             <div className="p-6 border-b border-outline flex justify-between items-center bg-surface-dim">
               <h3 className="text-sm font-black text-white uppercase tracking-widest">Engine History</h3>
             </div>

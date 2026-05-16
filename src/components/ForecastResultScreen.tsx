@@ -130,7 +130,7 @@ export const ForecastResultScreen: React.FC = () => {
         ))}
       </div>
 
-      <div className="bento-card !p-0 overflow-hidden shadow-sm">
+      <div className="bento-card p-0! overflow-hidden shadow-sm">
         <div className="p-8 border-b border-outline flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-surface-dim/30">
           <div>
             <h3 className="text-sm font-black text-white uppercase tracking-widest">Temporal Projection</h3>

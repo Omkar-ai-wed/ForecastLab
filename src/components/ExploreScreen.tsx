@@ -198,7 +198,7 @@ export const ExploreScreen: React.FC = () => {
             { label: 'Std Deviation', value: anomalyData?.stats.std?.toFixed(2) },
           ].map((stat) => (
             <div key={stat.label} className="bento-card bg-surface-container/10">
-              <p className="card-label !text-[9px]">{stat.label}</p>
+              <p className="card-label text-[9px]!">{stat.label}</p>
               <p className="text-2xl font-black text-white tabular-nums tracking-tighter">
                 {stat.value || '—'}
               </p>

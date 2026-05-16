@@ -15,8 +15,9 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
   const [isUploading, setIsUploading] = useState(false);
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedDs, setSelectedDs] = useState<Dataset | null>(null);
-  const [formData, setFormData] = useState({ dateColumn: 'timestamp', targetColumn: 'value', featureColumns: '' });
+  const [formData, setFormData] = useState({ dateColumn: '', targetColumn: '', featureColumns: '' });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +51,39 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
+
+      // Parse CSV headers from the first line
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result as string;
+        if (text) {
+          const firstLine = text.split('\n')[0].trim();
+          const headers = firstLine.split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+          setCsvHeaders(headers);
+
+          // Auto-detect date column (look for common datetime column names)
+          const dateKeywords = ['timestamp', 'date', 'time', 'datetime', 'date_time', 'dt'];
+          const detectedDate = headers.find(h => dateKeywords.some(k => h.toLowerCase().includes(k))) || '';
+
+          // Auto-detect target column (first numeric-looking column that isn't the date)
+          const targetKeywords = ['demand', 'value', 'target', 'load', 'mw', 'kwh', 'power', 'energy', 'price'];
+          const detectedTarget = headers.find(h => 
+            h !== detectedDate && targetKeywords.some(k => h.toLowerCase().includes(k))
+          ) || '';
+
+          // Auto-detect feature columns (remaining columns)
+          const featureCols = headers.filter(h => h !== detectedDate && h !== detectedTarget);
+
+          setFormData({
+            dateColumn: detectedDate,
+            targetColumn: detectedTarget,
+            featureColumns: featureCols.join(', '),
+          });
+        }
+      };
+      reader.readAsText(file.slice(0, 4096)); // Only read first 4KB for headers
     }
   };
 
@@ -67,7 +100,8 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
         await fetchDatasets();
         setIsModalOpen(false);
         setSelectedFile(null);
-        setFormData({ dateColumn: 'timestamp', targetColumn: 'value', featureColumns: '' });
+        setCsvHeaders([]);
+        setFormData({ dateColumn: '', targetColumn: '', featureColumns: '' });
         setErrors({});
       } catch (err: any) {
         setErrors({ submit: err.message || 'Upload failed' });
@@ -140,7 +174,7 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
         <>
           <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {selectedDs && (
-              <div className="md:col-span-4 lg:col-span-4 bento-card !p-0 overflow-hidden group">
+              <div className="md:col-span-4 lg:col-span-4 bento-card p-0! overflow-hidden group">
                 <div className="p-6 border-b border-outline flex justify-between items-center bg-surface-dim/50">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -207,13 +241,13 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="bento-card items-center justify-center text-center">
-                  <div className="card-label !mb-3">Total Rows</div>
+                  <div className="card-label mb-3!">Total Rows</div>
                   <div className="text-3xl font-black text-white tabular-nums tracking-tighter">
                     {(datasets.reduce((acc, d) => acc + d.row_count, 0) / 1000).toFixed(1)}k
                   </div>
                 </div>
                 <div onClick={() => setIsModalOpen(true)} className="bento-card items-center justify-center text-center bg-white group cursor-pointer hover:bg-opacity-90 transition-all border-none">
-                  <div className="card-label !text-black/60 !mb-2 text-[10px]">New Data</div>
+                  <div className="card-label text-black/60! mb-2! text-[10px]">New Data</div>
                   <div className="text-black group-hover:scale-125 transition-transform"><PlusIcon size={24} strokeWidth={3} /></div>
                 </div>
               </div>
@@ -249,7 +283,7 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
 
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
             <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }} className="bg-surface-dim w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden z-10 border border-outline">
               <div className="flex justify-between items-center px-8 py-5 border-b border-outline">
@@ -289,13 +323,27 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="card-label">Time Column</label>
-                    <input value={formData.dateColumn} onChange={(e) => setFormData({ ...formData, dateColumn: e.target.value })} className={cn("w-full px-4 py-3 bg-surface-container border border-outline text-white rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none placeholder:text-on-surface-variant", errors.dateColumn && "border-red-500/50 focus:ring-red-500/20")} placeholder="e.g. timestamp" type="text" />
+                    {csvHeaders.length > 0 ? (
+                      <select title="Select time column" aria-label="Select time column" value={formData.dateColumn} onChange={(e) => setFormData({ ...formData, dateColumn: e.target.value })} className={cn("w-full px-4 py-3 bg-surface-container border border-outline text-white rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none", errors.dateColumn && "border-red-500/50 focus:ring-red-500/20")}>
+                        <option value="" className="bg-surface-dim">— Select column —</option>
+                        {csvHeaders.map(h => <option key={h} value={h} className="bg-surface-dim">{h}</option>)}
+                      </select>
+                    ) : (
+                      <input value={formData.dateColumn} onChange={(e) => setFormData({ ...formData, dateColumn: e.target.value })} className={cn("w-full px-4 py-3 bg-surface-container border border-outline text-white rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none placeholder:text-on-surface-variant", errors.dateColumn && "border-red-500/50 focus:ring-red-500/20")} placeholder="Upload a file to detect columns" type="text" />
+                    )}
                     <p className="text-[9px] text-on-surface-variant font-bold uppercase tracking-widest">Header name of the datetime column</p>
                     {errors.dateColumn && <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">{errors.dateColumn}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="card-label">Target Column</label>
-                    <input value={formData.targetColumn} onChange={(e) => setFormData({ ...formData, targetColumn: e.target.value })} className={cn("w-full px-4 py-3 bg-surface-container border border-outline text-white rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none placeholder:text-on-surface-variant", errors.targetColumn && "border-red-500/50 focus:ring-red-500/20")} placeholder="e.g. mw_demand" type="text" />
+                    {csvHeaders.length > 0 ? (
+                      <select title="Select target column" aria-label="Select target column" value={formData.targetColumn} onChange={(e) => setFormData({ ...formData, targetColumn: e.target.value })} className={cn("w-full px-4 py-3 bg-surface-container border border-outline text-white rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none", errors.targetColumn && "border-red-500/50 focus:ring-red-500/20")}>
+                        <option value="" className="bg-surface-dim">— Select column —</option>
+                        {csvHeaders.map(h => <option key={h} value={h} className="bg-surface-dim">{h}</option>)}
+                      </select>
+                    ) : (
+                      <input value={formData.targetColumn} onChange={(e) => setFormData({ ...formData, targetColumn: e.target.value })} className={cn("w-full px-4 py-3 bg-surface-container border border-outline text-white rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none placeholder:text-on-surface-variant", errors.targetColumn && "border-red-500/50 focus:ring-red-500/20")} placeholder="Upload a file to detect columns" type="text" />
+                    )}
                     <p className="text-[9px] text-on-surface-variant font-bold uppercase tracking-widest">Header name of the value to forecast</p>
                     {errors.targetColumn && <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">{errors.targetColumn}</p>}
                   </div>
@@ -308,7 +356,7 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
               </div>
               
               <div className="px-8 py-6 border-t border-outline bg-surface-dim flex justify-end gap-4">
-                <button onClick={() => { setIsModalOpen(false); setErrors({}); setSelectedFile(null); }} className="px-6 py-2.5 border border-outline rounded-xl font-bold text-white hover:bg-surface-container transition-colors">Cancel</button>
+                <button onClick={() => { setIsModalOpen(false); setErrors({}); setSelectedFile(null); setCsvHeaders([]); setFormData({ dateColumn: '', targetColumn: '', featureColumns: '' }); }} className="px-6 py-2.5 border border-outline rounded-xl font-bold text-white hover:bg-surface-container transition-colors">Cancel</button>
                 <button disabled={isUploading} onClick={handleSubmit} className="px-6 py-2.5 bg-white text-black rounded-xl font-black uppercase text-xs tracking-widest hover:bg-opacity-90 transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center gap-2">
                   {isUploading ? <><RefreshCw size={14} className="animate-spin" /> Uploading...</> : 'Initiate Upload'}
                 </button>
@@ -320,7 +368,7 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
       
       <AnimatePresence>
         {showExportConfirm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowExportConfirm(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
             <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }} className="bg-surface-dim w-full max-w-md rounded-2xl shadow-2xl overflow-hidden z-10 border border-outline p-8">
               <div className="flex flex-col items-center text-center space-y-4">

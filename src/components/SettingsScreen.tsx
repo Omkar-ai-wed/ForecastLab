@@ -74,7 +74,7 @@ export const SettingsScreen: React.FC = () => {
         return (
           <div className="space-y-8">
             {/* General Settings Card */}
-            <div className="bento-card !p-8">
+            <div className="bento-card p-8!">
               <div className="flex items-center gap-3 mb-2">
                 <Settings2 size={22} className="text-secondary" />
                 <h3 className="text-xl font-bold text-white tracking-tight">General Settings</h3>
@@ -161,7 +161,7 @@ export const SettingsScreen: React.FC = () => {
       case 'api':
         return (
           <div className="space-y-8">
-            <div className="bento-card !p-8">
+            <div className="bento-card p-8!">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
                   <Cog size={22} className="text-secondary" />
@@ -239,7 +239,7 @@ export const SettingsScreen: React.FC = () => {
 
       case 'notifications':
         return (
-          <div className="bento-card !p-8 flex flex-col items-center justify-center py-16">
+          <div className="bento-card p-8! flex flex-col items-center justify-center py-16">
             <Bell size={48} className="text-on-surface-variant/15 mb-4" />
             <h4 className="text-lg font-bold text-white mb-2">Notification Preferences</h4>
             <p className="text-sm text-on-surface-variant font-medium text-center max-w-sm">
@@ -250,7 +250,7 @@ export const SettingsScreen: React.FC = () => {
 
       case 'storage':
         return (
-          <div className="bento-card !p-8 flex flex-col items-center justify-center py-16">
+          <div className="bento-card p-8! flex flex-col items-center justify-center py-16">
             <HardDrive size={48} className="text-on-surface-variant/15 mb-4" />
             <h4 className="text-lg font-bold text-white mb-2">Storage & Usage</h4>
             <p className="text-sm text-on-surface-variant font-medium text-center max-w-sm">
@@ -261,7 +261,7 @@ export const SettingsScreen: React.FC = () => {
 
       case 'security':
         return (
-          <div className="bento-card !p-8 flex flex-col items-center justify-center py-16">
+          <div className="bento-card p-8! flex flex-col items-center justify-center py-16">
             <Shield size={48} className="text-on-surface-variant/15 mb-4" />
             <h4 className="text-lg font-bold text-white mb-2">Security Settings</h4>
             <p className="text-sm text-on-surface-variant font-medium text-center max-w-sm">
@@ -313,7 +313,7 @@ export const SettingsScreen: React.FC = () => {
       {/* Add Key Modal */}
       <AnimatePresence>
         {showAddKey && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
