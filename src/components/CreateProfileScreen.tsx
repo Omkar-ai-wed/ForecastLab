@@ -51,7 +51,7 @@ export const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ onCanc
 
   return (
     <div className="w-full min-h-screen bg-black flex flex-col items-center justify-center py-12 px-6 overflow-x-hidden">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-4xl bento-card !p-12 shadow-2xl relative">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-4xl bento-card p-12! shadow-2xl relative">
         <div className="absolute right-0 top-0 w-64 h-64 bg-secondary/5 rounded-full -translate-y-24 translate-x-24 blur-3xl" />
         <div className="absolute top-8 right-12 z-20 flex items-center gap-3">
           <AnimatePresence mode="wait">
@@ -156,7 +156,7 @@ export const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ onCanc
 
       <AnimatePresence>
         {showExitConfirm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowExitConfirm(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
             <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }} className="bg-surface-dim w-full max-w-md rounded-2xl shadow-2xl overflow-hidden z-10 border border-outline p-8">
               <div className="flex flex-col items-center text-center space-y-4">
