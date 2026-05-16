@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #09090b;
+  --color-surface-dim: #18181b;
+  --color-surface-bright: #18181b;
+  --color-surface-container-lowest: #09090b;
+  --color-surface-container-low: #18181b;
+  --color-surface-container: #27272a;
+  --color-surface-container-high: #3f3f46;
+  --color-surface-container-highest: #52525b;
+  --color-on-surface: #fafafa;
+  --color-on-surface-variant: #a1a1aa;
+  --color-inverse-surface: #fafafa;
+  --color-inverse-on-surface: #09090b;
+  --color-outline: #27272a;
+  --color-outline-variant: #3f3f46;
+  --color-primary: #fafafa;
+  --color-on-primary: #09090b;
+  --color-primary-container: #1e1b4b;
+  --color-on-primary-container: #a5b4fc;
+  --color-secondary: #3b82f6;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #1e3a8a;
+  --color-on-secondary-container: #dbeafe;
+  --color-tertiary-container: #1e1b4b;
+  --color-on-tertiary-container: #a5b4fc;
+  --color-error: #ef4444;
+  --color-error-container: #7f1d1d;
+  --color-background: #09090b;
+  --color-on-background: #fafafa;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-tabular: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-background antialiased font-sans;
+  }
+  
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Bento Card Styles */
+  .bento-card {
+    @apply bg-surface-dim border border-outline rounded-xl p-5 flex flex-col transition-all duration-300;
+  }
+
+  .card-label {
+    @apply text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-3;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
