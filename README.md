@@ -44,6 +44,13 @@ From ingestion to insight—ForecastLab provides a one-stop platform with a Stud
 - **Frontend:** React 19, TypeScript, Vite 6, Tailwind CSS v4, Recharts, Motion, Lucide
 - **Backend:** Python 3.x, FastAPI, Uvicorn, PyTorch, statsmodels, Prophet, SQLite, SQLAlchemy
 
+### Repository Language Composition
+
+- **TypeScript:** 66.2%
+- **Python:** 31.9%
+- **CSS:** 1.1%
+- **Other:** 0.8%
+
 ---
 
 ## 🚀 Getting Started
