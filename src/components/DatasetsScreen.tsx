@@ -1,44 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Upload, X, CloudUpload, Activity, Database, ArrowUpRight, Filter, Plus as PlusIcon, RefreshCw, Download, BarChart3, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { Dataset } from '../types';
 import { api } from '../lib/api';
+import { useAppContext } from '../context/AppContext';
 
 interface DatasetsScreenProps { onNavigateToExplore: () => void; }
 
 export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExplore }) => {
+  const { datasets, isLoading, refreshDatasets } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [selectedDs, setSelectedDs] = useState<Dataset | null>(null);
+  const [selectedDs, setSelectedDs] = useState<Dataset | null>(datasets[0] || null);
   const [formData, setFormData] = useState({ dateColumn: '', targetColumn: '', featureColumns: '' });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchDatasets = async () => {
-    try {
-      setIsLoading(true);
-      const data = await api.getDatasets();
-      setDatasets(data);
-      if (data.length > 0 && !selectedDs) {
-        setSelectedDs(data[0]);
-      }
-    } catch (err) {
-      console.error('Failed to fetch datasets:', err);
-    } finally {
-      setIsLoading(false);
+  // Update selectedDs when datasets change (e.g. after upload)
+  React.useEffect(() => {
+    if (datasets.length > 0 && !selectedDs) {
+      setSelectedDs(datasets[0]);
     }
-  };
-
-  useEffect(() => {
-    fetchDatasets();
-  }, []);
+  }, [datasets]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -97,7 +85,7 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
           formData.targetColumn, 
           formData.featureColumns
         );
-        await fetchDatasets();
+        await refreshDatasets();
         setIsModalOpen(false);
         setSelectedFile(null);
         setCsvHeaders([]);
@@ -131,7 +119,7 @@ export const DatasetsScreen: React.FC<DatasetsScreenProps> = ({ onNavigateToExpl
           <p className="text-on-surface-variant font-bold text-xs uppercase tracking-widest opacity-60">System Overview & Management</p>
         </div>
         <div className="flex gap-3">
-          <button aria-label="Refresh datasets" title="Refresh datasets" className="bg-surface-dim border border-outline text-white p-3 rounded-xl hover:bg-surface-container transition-all" onClick={fetchDatasets}>
+          <button aria-label="Refresh datasets" title="Refresh datasets" className="bg-surface-dim border border-outline text-white p-3 rounded-xl hover:bg-surface-container transition-all" onClick={refreshDatasets}>
             <RefreshCw size={20} className={cn(isLoading && "animate-spin")} />
           </button>
           <button disabled={isExporting || !hasDatasets} onClick={() => setShowExportConfirm(true)} className="bg-surface-dim border border-outline text-white px-5 py-3 rounded-xl font-bold uppercase text-xs tracking-widest flex items-center gap-2 hover:bg-surface-container transition-all shadow-lg active:scale-95 disabled:opacity-50">

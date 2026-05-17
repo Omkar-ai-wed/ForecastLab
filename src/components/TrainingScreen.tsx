@@ -4,17 +4,16 @@ import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../lib/api';
 import { Dataset, Model } from '../types';
+import { useAppContext } from '../context/AppContext';
 
 export const TrainingScreen: React.FC = () => {
+  const { datasets, models, isLoading, refreshAll } = useAppContext();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(true);
   const [isTraining, setIsTraining] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [models, setModels] = useState<Model[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    dataset_id: '',
+    dataset_id: datasets[0]?.dataset_id || '',
     model_type: 'ARIMA',
     validation_size: 30,
     forecast_horizon: 24,
@@ -25,29 +24,12 @@ export const TrainingScreen: React.FC = () => {
     num_layers: 2
   });
 
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const [dsData, modelData] = await Promise.all([
-        api.getDatasets(),
-        api.getModels()
-      ]);
-      setDatasets(dsData);
-      setModels(modelData);
-      if (dsData.length > 0 && !formData.dataset_id) {
-        setFormData(prev => ({ ...prev, dataset_id: dsData[0].dataset_id }));
-      }
-    } catch (err) {
-      console.error('Failed to fetch data:', err);
-      setError('Connection failure: Unable to reach backend mainframe.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Auto-select first dataset when datasets load
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (datasets.length > 0 && !formData.dataset_id) {
+      setFormData(prev => ({ ...prev, dataset_id: datasets[0].dataset_id }));
+    }
+  }, [datasets]);
 
   const handleStartTraining = async () => {
     if (!formData.dataset_id) {
@@ -69,7 +51,7 @@ export const TrainingScreen: React.FC = () => {
         hidden_size: formData.hidden_size,
         num_layers: formData.num_layers
       });
-      await fetchData();
+      await refreshAll();
     } catch (err: any) {
       setError(err.message || 'Processing Error: Training failed.');
     } finally {
@@ -101,7 +83,7 @@ export const TrainingScreen: React.FC = () => {
           <h2 className="text-4xl font-black text-white tracking-tighter leading-none mb-2">Neural Foundry</h2>
           <p className="text-on-surface-variant font-bold text-xs uppercase tracking-widest opacity-60">Architect & Train Predictive Engines</p>
         </div>
-        <button aria-label="Refresh data" title="Refresh data" onClick={fetchData} className="bg-surface-dim border border-outline text-white p-3 rounded-xl hover:bg-surface-container transition-all">
+        <button aria-label="Refresh data" title="Refresh data" onClick={refreshAll} className="bg-surface-dim border border-outline text-white p-3 rounded-xl hover:bg-surface-container transition-all">
           <RefreshCw size={20} className={cn(isLoading && "animate-spin")} />
         </button>
       </div>

@@ -7,29 +7,21 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, Legend, ReferenceLine, Line
 } from 'recharts';
+import { useAppContext } from '../context/AppContext';
 
 export const ForecastResultScreen: React.FC = () => {
-  const [models, setModels] = useState<Model[]>([]);
-  const [selectedModelId, setSelectedModelId] = useState<string>('');
+  const { models } = useAppContext();
+  const [selectedModelId, setSelectedModelId] = useState<string>(models[0]?.model_id || '');
   const [forecast, setForecast] = useState<ForecastResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchModels = async () => {
-    try {
-      const data = await api.getModels();
-      setModels(data);
-      if (data.length > 0 && !selectedModelId) {
-        setSelectedModelId(data[0].model_id);
-      }
-    } catch (err) {
-      console.error('Failed to fetch models:', err);
-    }
-  };
-
+  // Auto-select first model when models load
   useEffect(() => {
-    fetchModels();
-  }, []);
+    if (models.length > 0 && !selectedModelId) {
+      setSelectedModelId(models[0].model_id);
+    }
+  }, [models]);
 
   const handleGenerateForecast = async () => {
     if (!selectedModelId) return;

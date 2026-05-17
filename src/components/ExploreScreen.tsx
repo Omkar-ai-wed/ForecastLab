@@ -5,30 +5,22 @@ import { cn } from '../lib/utils';
 import { motion } from 'motion/react';
 import { api } from '../lib/api';
 import { Dataset, AnomalyResponse, AnomalyDataPoint } from '../types';
+import { useAppContext } from '../context/AppContext';
 
 export const ExploreScreen: React.FC = () => {
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [selectedDsId, setSelectedDsId] = useState<string>('');
+  const { datasets } = useAppContext();
+  const [selectedDsId, setSelectedDsId] = useState<string>(datasets[0]?.dataset_id || '');
   const [anomalyData, setAnomalyData] = useState<AnomalyResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAnomalies, setShowAnomalies] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDatasets = async () => {
-    try {
-      const data = await api.getDatasets();
-      setDatasets(data);
-      if (data.length > 0 && !selectedDsId) {
-        setSelectedDsId(data[0].dataset_id);
-      }
-    } catch (err) {
-      console.error('Failed to fetch datasets:', err);
-    }
-  };
-
+  // Auto-select first dataset if none selected
   useEffect(() => {
-    fetchDatasets();
-  }, []);
+    if (datasets.length > 0 && !selectedDsId) {
+      setSelectedDsId(datasets[0].dataset_id);
+    }
+  }, [datasets]);
 
   const fetchExploreData = async () => {
     if (!selectedDsId) return;
