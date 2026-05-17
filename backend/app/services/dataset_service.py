@@ -4,6 +4,8 @@ Dataset loading, validation, and frequency inference.
 from __future__ import annotations
 
 import logging
+import os
+from io import StringIO
 
 import pandas as pd
 from fastapi import HTTPException
@@ -18,6 +20,9 @@ def load_dataset(dataset_id: str, db: Session) -> tuple[pd.DataFrame, DatasetRec
     """
     Look up the dataset in the DB, read the CSV, and return both.
 
+    If the local CSV file is missing (e.g. after a cloud restart),
+    reconstruct it from the csv_content stored in the database.
+
     Raises
     ------
     HTTPException 404 if dataset_id is not found.
@@ -26,7 +31,23 @@ def load_dataset(dataset_id: str, db: Session) -> tuple[pd.DataFrame, DatasetRec
     if record is None:
         raise HTTPException(status_code=404, detail=f"Dataset '{dataset_id}' not found.")
 
-    df = pd.read_csv(record.file_path, parse_dates=[record.date_column])
+    # Try reading from disk first
+    if os.path.exists(record.file_path):
+        df = pd.read_csv(record.file_path, parse_dates=[record.date_column])
+    elif record.csv_content:
+        # Reconstruct from database (cloud persistence)
+        logger.info("Reconstructing CSV for dataset %s from database", dataset_id)
+        df = pd.read_csv(StringIO(record.csv_content), parse_dates=[record.date_column])
+        # Also write it back to disk for subsequent reads
+        os.makedirs(os.path.dirname(record.file_path) or "data", exist_ok=True)
+        with open(record.file_path, "w", encoding="utf-8") as f:
+            f.write(record.csv_content)
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Dataset '{dataset_id}' data file is missing and no backup exists in the database.",
+        )
+
     df.sort_values(record.date_column, inplace=True)
     df.reset_index(drop=True, inplace=True)
     return df, record

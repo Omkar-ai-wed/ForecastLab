@@ -1,8 +1,12 @@
 """
-SQLite database setup via SQLAlchemy.
+PostgreSQL (Supabase) database setup via SQLAlchemy.
 Tables: datasets, trained_models
+
+Uses DATABASE_URL environment variable for the connection string.
+Falls back to local SQLite for development if not set.
 """
 import json
+import os
 from datetime import datetime
 
 from sqlalchemy import (
@@ -15,9 +19,21 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-DATABASE_URL = "sqlite:///./forecast_lab.db"
+# --------------------------------------------------------------------------
+# Connection: Supabase PostgreSQL in production, SQLite locally
+# --------------------------------------------------------------------------
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+if DATABASE_URL:
+    # Supabase/Render provide postgres:// but SQLAlchemy needs postgresql://
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+else:
+    # Fallback to local SQLite for development
+    DATABASE_URL = "sqlite:///./forecast_lab.db"
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -36,6 +52,7 @@ class DatasetRecord(Base):
     date_column = Column(String, nullable=False)
     target_column = Column(String, nullable=False)
     feature_columns = Column(Text, default="[]")  # JSON list
+    csv_content = Column(Text, nullable=True)  # Store CSV data directly in DB
     start_date = Column(String, nullable=True)
     end_date = Column(String, nullable=True)
     frequency = Column(String, nullable=True)

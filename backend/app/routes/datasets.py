@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import uuid
+from io import StringIO
 from typing import Optional
 
 import pandas as pd
@@ -35,6 +36,7 @@ async def upload_dataset(
 ):
     """
     Upload a CSV file, validate columns, infer frequency, and persist metadata.
+    Stores CSV content directly in the database for cloud persistence.
     """
     # Parse feature columns (comma-separated string)
     feat_cols: list[str] = []
@@ -43,7 +45,8 @@ async def upload_dataset(
 
     # Read CSV
     try:
-        df = pd.read_csv(file.file)
+        raw_content = (await file.read()).decode("utf-8")
+        df = pd.read_csv(StringIO(raw_content))
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to read CSV: {e}")
 
@@ -62,16 +65,20 @@ async def upload_dataset(
     # Infer frequency
     freq = infer_frequency(df, date_column)
 
-    # Generate ID & save
+    # Generate ID & save to disk (local fallback)
     dataset_id = str(uuid.uuid4())[:8]
     os.makedirs(DATA_DIR, exist_ok=True)
     csv_path = os.path.join(DATA_DIR, f"{dataset_id}.csv")
-    df.to_csv(csv_path, index=False)
+    csv_string = df.to_csv(index=False)
+    
+    # Also save locally for immediate use
+    with open(csv_path, "w", encoding="utf-8") as f:
+        f.write(csv_string)
 
     start_date = str(df[date_column].min())
     end_date = str(df[date_column].max())
 
-    # Persist metadata
+    # Persist metadata + CSV content in the database
     record = DatasetRecord(
         dataset_id=dataset_id,
         original_filename=file.filename or "unknown.csv",
@@ -79,6 +86,7 @@ async def upload_dataset(
         date_column=date_column,
         target_column=target_column,
         feature_columns=json.dumps(feat_cols),
+        csv_content=csv_string,  # Store CSV in DB for cloud persistence
         start_date=start_date,
         end_date=end_date,
         frequency=freq,
