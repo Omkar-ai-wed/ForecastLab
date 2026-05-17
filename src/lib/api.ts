@@ -104,28 +104,6 @@ export const api = {
 
     const response = await fetch(`${API_BASE_URL}/anomalies/${datasetId}?${queryParams.toString()}`);
     if (!response.ok) throw new Error('Failed to fetch anomalies');
-    const raw: AnomalyResponse = await response.json();
-
-    // Build chart-ready data with is_anomaly flag
-    const anomalyScores = new Set(raw.anomalies.map(a => `${a.timestamp}_${a.value}`));
-    const data = raw.anomalies.map(a => ({
-      timestamp: a.timestamp,
-      value: a.value,
-      score: a.score,
-      is_anomaly: anomalyScores.has(`${a.timestamp}_${a.value}`) && a.score > raw.threshold,
-    }));
-
-    // Compute stats
-    const values = raw.anomalies.map(a => a.value);
-    const mean = values.length > 0 ? values.reduce((s, v) => s + v, 0) / values.length : 0;
-    const std = values.length > 0 ? Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length) : 0;
-    const stats = {
-      min: values.length > 0 ? Math.min(...values) : 0,
-      max: values.length > 0 ? Math.max(...values) : 0,
-      mean,
-      std,
-    };
-
-    return { ...raw, data, stats };
+    return response.json();
   },
 };
