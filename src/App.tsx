@@ -48,11 +48,14 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="flex min-h-screen" style={{ background: '#0a0e17' }}>
       <Sidebar activeScreen={activeScreen} onScreenChange={setActiveScreen} />
       
       <div className="flex-1 ml-[280px] flex flex-col min-h-screen w-[calc(100%-280px)]">
-        <TopBar onProfileClick={() => setActiveScreen('profile')} />
+        <TopBar 
+          onProfileClick={() => setActiveScreen('profile')} 
+          onRunForecast={() => setActiveScreen('forecasts')}
+        />
         
         <main className="flex-1 p-8 overflow-x-hidden">
           {renderScreen()}

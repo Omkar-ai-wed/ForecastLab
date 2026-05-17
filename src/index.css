@@ -1,40 +1,71 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --color-surface: #09090b;
-  --color-surface-dim: #18181b;
-  --color-surface-bright: #18181b;
-  --color-surface-container-lowest: #09090b;
-  --color-surface-container-low: #18181b;
-  --color-surface-container: #27272a;
-  --color-surface-container-high: #3f3f46;
-  --color-surface-container-highest: #52525b;
-  --color-on-surface: #fafafa;
-  --color-on-surface-variant: #a1a1aa;
-  --color-inverse-surface: #fafafa;
-  --color-inverse-on-surface: #09090b;
-  --color-outline: #27272a;
-  --color-outline-variant: #3f3f46;
-  --color-primary: #fafafa;
-  --color-on-primary: #09090b;
-  --color-primary-container: #1e1b4b;
-  --color-on-primary-container: #a5b4fc;
-  --color-secondary: #3b82f6;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #1e3a8a;
-  --color-on-secondary-container: #dbeafe;
-  --color-tertiary-container: #1e1b4b;
-  --color-on-tertiary-container: #a5b4fc;
-  --color-error: #ef4444;
-  --color-error-container: #7f1d1d;
-  --color-background: #09090b;
-  --color-on-background: #fafafa;
+/* ═══════════════════════════════════════════════════════════
+   LUMINOUS PRECISION — Design System by Stitch MCP
+   A fusion of Corporate Modern & Glassmorphism for
+   high-stakes energy forecasting environments.
+   ═══════════════════════════════════════════════════════════ */
 
+@theme {
+  /* Surface Palette — Deep Navy Tonal Scale */
+  --color-surface: #0f131c;
+  --color-surface-dim: #0f131c;
+  --color-surface-bright: #353943;
+  --color-surface-container-lowest: #0a0e17;
+  --color-surface-container-low: #181b25;
+  --color-surface-container: #1c1f29;
+  --color-surface-container-high: #262a34;
+  --color-surface-container-highest: #31353f;
+  --color-on-surface: #dfe2ef;
+  --color-on-surface-variant: #bacac2;
+  --color-inverse-surface: #dfe2ef;
+  --color-inverse-on-surface: #2c303a;
+  --color-outline: #3b4a44;
+  --color-outline-variant: #85948d;
+
+  /* Primary — Emerald Glow */
+  --color-primary: #46f1c5;
+  --color-on-primary: #00382b;
+  --color-primary-container: #00d4aa;
+  --color-on-primary-container: #005643;
+
+  /* Secondary — Muted Blue */
+  --color-secondary: #c0c6db;
+  --color-on-secondary: #293040;
+  --color-secondary-container: #404758;
+  --color-on-secondary-container: #aeb5c9;
+
+  /* Tertiary — Warm Amber */
+  --color-tertiary: #ffcea6;
+  --color-on-tertiary: #4c2700;
+  --color-tertiary-container: #ffa858;
+  --color-on-tertiary-container: #733e00;
+
+  /* Error — Soft Red */
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  /* Background */
+  --color-background: #0a0e17;
+  --color-on-background: #dfe2ef;
+
+  /* Surface Tint (used for glassmorphism) */
+  --color-surface-tint: #28dfb5;
+
+  /* Typography */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-tabular: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --radius-xl: 20px;
+  /* Radius — Modern Rounded */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
   --radius-full: 9999px;
 }
 
@@ -47,20 +78,370 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Bento Card Styles */
+  /* ─────────────────────────────────────────
+     BENTO CARD — Glassmorphism Base
+     ───────────────────────────────────────── */
   .bento-card {
-    @apply bg-surface-dim border border-outline rounded-xl p-5 flex flex-col transition-all duration-300;
+    @apply bg-surface-container-low border border-outline rounded-xl p-5 flex flex-col transition-all duration-300;
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    background: rgba(24, 27, 37, 0.8);
   }
 
+  .bento-card:hover {
+    border-color: rgba(70, 241, 197, 0.2);
+    box-shadow: 0 0 30px rgba(0, 212, 170, 0.05);
+    transform: translateY(-1px);
+  }
+
+  /* ─────────────────────────────────────────
+     LABELS — Technical Instrument Panel Feel
+     ───────────────────────────────────────── */
   .card-label {
     @apply text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-3;
+    letter-spacing: 0.12em;
   }
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* ═══════════════════════════════════════════════════════════
+   INTERACTIVE MICRO-ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Emerald Glow Button */
+.btn-primary-glow {
+  background: #00d4aa;
+  color: #0a0e17;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.15);
 }
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+.btn-primary-glow:hover {
+  box-shadow: 0 0 30px rgba(0, 212, 170, 0.35), inset 0 0 15px rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.btn-primary-glow:active {
+  transform: scale(0.96);
+  box-shadow: 0 0 10px rgba(0, 212, 170, 0.2);
+}
+
+/* Ghost Button */
+.btn-ghost {
+  background: transparent;
+  color: #dfe2ef;
+  font-weight: 600;
+  border: 1px solid #3b4a44;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(70, 241, 197, 0.08);
+  border-color: rgba(70, 241, 197, 0.3);
+}
+
+/* ─────────────────────────────────────────
+   STATUS DOT — Pulsing Indicator
+   ───────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(70, 241, 197, 0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(70, 241, 197, 0); }
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #46f1c5;
+  animation: pulse-dot 2s ease-in-out infinite;
+  display: inline-block;
+}
+
+.status-dot-idle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #85948d;
+  display: inline-block;
+}
+
+/* ─────────────────────────────────────────
+   PROGRESS BAR — Energy Flow
+   ───────────────────────────────────────── */
+.progress-track {
+  background: #1c1f29;
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #006b55, #00d4aa, #46f1c5);
+  border-radius: 9999px;
+  height: 100%;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─────────────────────────────────────────
+   SIDEBAR — Glass Panel
+   ───────────────────────────────────────── */
+.sidebar-glass {
+  background: rgba(15, 19, 28, 0.9);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(59, 74, 68, 0.5);
+}
+
+.sidebar-item {
+  transition: all 0.2s ease;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  position: relative;
+}
+
+.sidebar-item:hover {
+  background: rgba(70, 241, 197, 0.06);
+}
+
+.sidebar-item.active {
+  background: rgba(70, 241, 197, 0.1);
+  border: 1px solid rgba(70, 241, 197, 0.2);
+}
+
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  border-radius: 0 3px 3px 0;
+  background: #46f1c5;
+}
+
+/* ─────────────────────────────────────────
+   INPUT — Emerald Focus Glow
+   ───────────────────────────────────────── */
+.input-dark {
+  background: #0f131c;
+  border: 1px solid #3b4a44;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #dfe2ef;
+  font-size: 14px;
+  transition: all 0.25s ease;
+  outline: none;
+  width: 100%;
+}
+
+.input-dark:focus {
+  border-color: #46f1c5;
+  box-shadow: 0 0 0 3px rgba(70, 241, 197, 0.15);
+}
+
+.input-dark::placeholder {
+  color: #85948d;
+}
+
+/* ─────────────────────────────────────────
+   CHIP / BADGE — Type Indicators
+   ───────────────────────────────────────── */
+.chip-emerald {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(70, 241, 197, 0.12);
+  color: #46f1c5;
+  border: 1px solid rgba(70, 241, 197, 0.2);
+}
+
+.chip-amber {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255, 206, 166, 0.12);
+  color: #ffcea6;
+  border: 1px solid rgba(255, 206, 166, 0.2);
+}
+
+.chip-blue {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* ─────────────────────────────────────────
+   TABLE — Data Grid
+   ───────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #85948d;
+  border-bottom: 1px solid #3b4a44;
+}
+
+.data-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #dfe2ef;
+  border-bottom: 1px solid rgba(59, 74, 68, 0.3);
+}
+
+.data-table tbody tr {
+  transition: all 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(70, 241, 197, 0.04);
+}
+
+/* ─────────────────────────────────────────
+   STAT CARD — Large Metrics Display
+   ───────────────────────────────────────── */
+.stat-value {
+  font-family: "Inter", sans-serif;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.stat-value-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────
+   CHART TOOLTIP — Premium Dark
+   ───────────────────────────────────────── */
+.chart-tooltip {
+  background: rgba(15, 19, 28, 0.95) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid #3b4a44 !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ─────────────────────────────────────────
+   ANIMATIONS — Smooth Transitions
+   ───────────────────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 170, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(0, 212, 170, 0.25); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(70, 241, 197, 0.05), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Stagger children animations */
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* ─────────────────────────────────────────
+   SCROLLBAR — Custom Dark Theme
+   ───────────────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0e17; }
+::-webkit-scrollbar-thumb {
+  background: #3b4a44;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: #85948d; }
+
+/* ─────────────────────────────────────────
+   MODAL BACKDROP — Frosted Glass
+   ───────────────────────────────────────── */
+.modal-backdrop {
+  background: rgba(10, 14, 23, 0.75);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* ─────────────────────────────────────────
+   UTILITY — Emerald Border Highlight
+   ───────────────────────────────────────── */
+.border-glow {
+  border: 1px solid rgba(70, 241, 197, 0.3);
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.08);
+}
+
+.border-glow-hover:hover {
+  border-color: rgba(70, 241, 197, 0.4);
+  box-shadow: 0 0 30px rgba(0, 212, 170, 0.12);
 }
