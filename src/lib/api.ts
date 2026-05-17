@@ -6,7 +6,9 @@ import {
   Metrics
 } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000';
+// In production on Vercel, we need to read the API URL from environment variables
+// otherwise default to localhost for local development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const api = {
   // Datasets
