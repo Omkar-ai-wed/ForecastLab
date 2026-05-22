@@ -10,6 +10,21 @@ import {
 // otherwise default to localhost for local development
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+async function handleError(response: globalThis.Response, defaultMessage: string): Promise<never> {
+  try {
+    const text = await response.text();
+    try {
+      const errorData = JSON.parse(text);
+      throw new Error(errorData.detail || defaultMessage);
+    } catch {
+      throw new Error(text || defaultMessage);
+    }
+  } catch (e) {
+    if (e instanceof Error) throw e;
+    throw new Error(defaultMessage);
+  }
+}
+
 export const api = {
   // Datasets
   async uploadDataset(file: File, dateColumn: string, targetColumn: string, featureColumns?: string): Promise<any> {
@@ -27,8 +42,7 @@ export const api = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Failed to upload dataset');
+      await handleError(response, 'Failed to upload dataset');
     }
 
     return response.json();
@@ -38,6 +52,20 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/datasets`);
     if (!response.ok) throw new Error('Failed to fetch datasets');
     return response.json();
+  },
+
+  async deleteDataset(datasetId: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/datasets/${datasetId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      await handleError(response, 'Failed to delete dataset');
+    }
+    return response.json();
+  },
+
+  getDatasetDownloadUrl(datasetId: string): string {
+    return `${API_BASE_URL}/datasets/${datasetId}/download`;
   },
 
   // Training
@@ -55,8 +83,7 @@ export const api = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Failed to train model');
+      await handleError(response, 'Failed to train model');
     }
 
     return response.json();
@@ -84,8 +111,7 @@ export const api = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Failed to generate forecast');
+      await handleError(response, 'Failed to generate forecast');
     }
 
     return response.json();

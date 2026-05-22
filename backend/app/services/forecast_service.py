@@ -109,9 +109,37 @@ def generate_forecast(
 
         future_dates = pd.date_range(start=last_date, periods=horizon + 1, freq=freq)[1:]
 
+        # Implement standard-error growing confidence intervals for deep learning models
+        from app.database import SessionLocal, TrainedModelRecord
+        db = SessionLocal()
+        validation_rmse = None
+        try:
+            record = db.query(TrainedModelRecord).filter(TrainedModelRecord.model_id == model_id).first()
+            if record:
+                metrics = record.metrics_dict()
+                validation_rmse = metrics.get("rmse")
+        except Exception as e:
+            logger.warning("Failed to query model RMSE for deep model confidence intervals: %s", e)
+        finally:
+            db.close()
+
+        if validation_rmse is None or validation_rmse == 0.0:
+            # Fallback to standard deviation of target column
+            validation_rmse = float(np.std(dataset_df[target_column].values))
+            if validation_rmse == 0.0:
+                validation_rmse = 1.0
+
+        lower = []
+        upper = []
+        for t in range(1, horizon + 1):
+            uncertainty = 1.96 * validation_rmse * np.sqrt(t)
+            pred_val = preds[t - 1]
+            lower.append(pred_val - uncertainty)
+            upper.append(pred_val + uncertainty)
+
         return pd.DataFrame({
             "timestamp": future_dates.astype(str),
             "predicted": preds,
-            "lower": [None] * horizon,
-            "upper": [None] * horizon,
+            "lower": lower,
+            "upper": upper,
         })

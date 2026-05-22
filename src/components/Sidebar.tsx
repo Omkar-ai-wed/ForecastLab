@@ -15,9 +15,16 @@ import { Screen } from '../types';
 interface SidebarProps {
   activeScreen: Screen;
   onScreenChange: (screen: Screen) => void;
+  onNewProjectClick?: () => void;
+  onSupportClick?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeScreen, onScreenChange }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ 
+  activeScreen, 
+  onScreenChange,
+  onNewProjectClick,
+  onSupportClick
+}) => {
   const navItems = [
     { id: 'datasets', label: 'Datasets', icon: Database },
     { id: 'explore', label: 'Explore', icon: Compass },
@@ -45,7 +52,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeScreen, onScreenChange }
 
       {/* New Project CTA */}
       <div className="px-6">
-        <button className="btn-primary-glow w-full flex items-center justify-center gap-2 h-11">
+        <button 
+          onClick={onNewProjectClick}
+          className="btn-primary-glow w-full flex items-center justify-center gap-2 h-11"
+        >
           <Plus size={16} />
           New Project
         </button>
@@ -84,7 +94,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeScreen, onScreenChange }
         {footerItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => onScreenChange(item.id as Screen)}
+            onClick={() => {
+              if (item.id === 'support') {
+                onSupportClick?.();
+              } else {
+                onScreenChange(item.id as Screen);
+              }
+            }}
             className={cn(
               "sidebar-item flex items-center gap-3 transition-all duration-200 text-left",
               activeScreen === item.id 

@@ -31,6 +31,7 @@ async def list_models(db: Session = Depends(get_db)):
             "model_id": r.model_id,
             "dataset_id": r.dataset_id,
             "model_type": r.model_type,
+            "status": r.status,
             "hyperparameters": r.hyperparameters_dict(),
             "metrics": r.metrics_dict(),
             "forecast_horizon": r.forecast_horizon,

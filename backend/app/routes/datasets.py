@@ -14,9 +14,11 @@ from typing import Optional
 
 import pandas as pd
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
-from app.database import DatasetRecord, get_db
+from app.database import DatasetRecord, TrainedModelRecord, get_db
+from app.utils.model_io import delete_model_files
 from app.schemas.dataset import DatasetMetadataResponse, DatasetUploadResponse
 from app.services.dataset_service import infer_frequency, validate_columns
 
@@ -127,3 +129,54 @@ async def list_datasets(db: Session = Depends(get_db)):
         )
         for r in records
     ]
+
+
+@router.delete("/datasets/{dataset_id}")
+async def delete_dataset(dataset_id: str, db: Session = Depends(get_db)):
+    """Delete a dataset and its associated models/files."""
+    record = db.query(DatasetRecord).filter(DatasetRecord.dataset_id == dataset_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    
+    # Delete local CSV
+    if record.file_path and os.path.exists(record.file_path):
+        try:
+            os.remove(record.file_path)
+            logger.info("Deleted local CSV file: %s", record.file_path)
+        except Exception as e:
+            logger.warning("Failed to delete CSV file %s: %s", record.file_path, e)
+            
+    # Delete associated models
+    models = db.query(TrainedModelRecord).filter(TrainedModelRecord.dataset_id == dataset_id).all()
+    for model in models:
+        delete_model_files(model.model_id, model.model_type, model.model_path)
+        db.delete(model)
+        
+    db.delete(record)
+    db.commit()
+    return {"message": f"Dataset {dataset_id} deleted successfully"}
+
+
+@router.get("/datasets/{dataset_id}/download")
+async def download_dataset(dataset_id: str, db: Session = Depends(get_db)):
+    """Download the dataset CSV file."""
+    record = db.query(DatasetRecord).filter(DatasetRecord.dataset_id == dataset_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    
+    # If the file exists locally, serve it. Otherwise, stream/return it from csv_content
+    if record.file_path and os.path.exists(record.file_path):
+        return FileResponse(
+            record.file_path,
+            media_type="text/csv",
+            filename=record.original_filename
+        )
+    elif record.csv_content:
+        return Response(
+            content=record.csv_content,
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename={record.original_filename}"}
+        )
+    else:
+        raise HTTPException(status_code=404, detail="Dataset file content not found")
+

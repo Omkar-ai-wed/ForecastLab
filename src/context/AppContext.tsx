@@ -11,9 +11,12 @@ interface AppContextType {
   datasets: Dataset[];
   models: Model[];
   isLoading: boolean;
+  error: string | null;
   refreshDatasets: () => Promise<void>;
   refreshModels: () => Promise<void>;
   refreshAll: () => Promise<void>;
+  deleteDataset: (id: string) => Promise<void>;
+  setError: (err: string | null) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -22,6 +25,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [models, setModels] = useState<Model[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const refreshDatasets = useCallback(async () => {
     try {
@@ -47,13 +51,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsLoading(false);
   }, [refreshDatasets, refreshModels]);
 
+  const deleteDataset = useCallback(async (id: string) => {
+    try {
+      await api.deleteDataset(id);
+      await refreshAll();
+    } catch (err: any) {
+      console.error('Failed to delete dataset:', err);
+      setError(err.message || 'Failed to delete dataset');
+      throw err;
+    }
+  }, [refreshAll]);
+
   // Fetch everything once on app boot
   useEffect(() => {
     refreshAll();
   }, [refreshAll]);
 
+  // Polling mechanism: poll models every 4 seconds if any model is in 'training' state
+  useEffect(() => {
+    const hasTraining = models.some(m => m.status === 'training');
+    if (!hasTraining) return;
+
+    const interval = setInterval(() => {
+      refreshModels();
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [models, refreshModels]);
+
   return (
-    <AppContext.Provider value={{ datasets, models, isLoading, refreshDatasets, refreshModels, refreshAll }}>
+    <AppContext.Provider value={{
+      datasets,
+      models,
+      isLoading,
+      error,
+      refreshDatasets,
+      refreshModels,
+      refreshAll,
+      deleteDataset,
+      setError
+    }}>
       {children}
     </AppContext.Provider>
   );

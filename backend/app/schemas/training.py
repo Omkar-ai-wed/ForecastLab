@@ -45,6 +45,7 @@ class TrainResponse(BaseModel):
     model_id: str
     dataset_id: str
     model_type: str
-    metrics: MetricsResponse
+    status: str
+    metrics: Optional[MetricsResponse] = None
     hyperparameters: dict
     created_at: datetime

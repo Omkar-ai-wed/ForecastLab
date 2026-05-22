@@ -113,3 +113,23 @@ def load_model(model_id: str, model_type: str) -> tuple[Any, dict]:
             with open(meta_path) as f:
                 extra = json.load(f)
         return model, extra
+
+
+def delete_model_files(model_id: str, model_type: str, model_path: str):
+    """Delete model files from disk."""
+    if os.path.exists(model_path):
+        try:
+            os.remove(model_path)
+            logger.info("Deleted model file: %s", model_path)
+        except Exception as e:
+            logger.warning("Failed to delete model file %s: %s", model_path, e)
+    
+    # Also clean up possible meta files
+    meta_path = os.path.join(MODELS_DIR, f"{model_id}_meta.json")
+    if os.path.exists(meta_path):
+        try:
+            os.remove(meta_path)
+            logger.info("Deleted model meta file: %s", meta_path)
+        except Exception as e:
+            logger.warning("Failed to delete model meta file %s: %s", meta_path, e)
+

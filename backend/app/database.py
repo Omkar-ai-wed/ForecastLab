@@ -76,6 +76,7 @@ class TrainedModelRecord(Base):
     model_path = Column(String, nullable=False)
     forecast_horizon = Column(Integer, nullable=False)
     validation_size = Column(Integer, nullable=False)
+    status = Column(String, default="completed")
     created_at = Column(DateTime, default=datetime.utcnow)
 
     def hyperparameters_dict(self) -> dict:

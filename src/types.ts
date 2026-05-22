@@ -27,8 +27,9 @@ export interface Model {
   model_id: string;
   dataset_id: string;
   model_type: 'ARIMA' | 'PROPHET' | 'LSTM' | 'GRU' | 'TRANSFORMER';
+  status?: 'training' | 'completed' | 'failed';
   hyperparameters: Record<string, any>;
-  metrics: Metrics;
+  metrics?: Metrics;
   forecast_horizon: number;
   validation_size: number;
   created_at: string;
