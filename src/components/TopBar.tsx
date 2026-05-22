@@ -12,7 +12,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onProfileClick, onRunForecast })
       <div className="flex items-center gap-4">
         <h2 className="text-xl font-extrabold text-on-surface tracking-tight">Forecasting System</h2>
         <div className="flex items-center rounded-xl px-4 py-1.5 ml-8 transition-all w-72 input-dark">
-          <Search size={16} className="text-on-surface-variant mr-3 flex-shrink-0" />
+          <Search size={16} className="text-on-surface-variant mr-3 shrink-0" />
           <input className="bg-transparent border-none focus:ring-0 focus:outline-none text-sm w-full p-0 placeholder:text-on-surface-variant/60 text-on-surface" placeholder="Search datasets..." type="text" />
         </div>
       </div>
